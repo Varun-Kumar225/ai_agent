@@ -25,3 +25,38 @@
 2026-11-12 11:24:42,608 [INFO]  * Debugger PIN: 802-374-099
 2026-11-12 11:25:11,819 [INFO] Home route accessed.
 2026-11-12 11:25:11,836 [INFO] 127.0.0.1 - - [12/Nov/2026 11:25:11] "GET / HTTP/1.1" 200 -
+2026-11-13 10:46:51,168 [INFO] GEMINI_API_KEY loaded successfully.
+2026-11-13 10:46:52,011 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-11-13 10:46:52,012 [INFO] [33mPress CTRL+C to quit[0m
+2026-11-13 10:46:52,016 [INFO]  * Restarting with stat
+2026-11-13 10:46:55,600 [INFO] GEMINI_API_KEY loaded successfully.
+2026-11-13 10:46:56,428 [WARNING]  * Debugger is active!
+2026-11-13 10:46:56,435 [INFO]  * Debugger PIN: 346-784-158
+2026-11-13 10:47:39,959 [INFO] Home route accessed.
+2026-11-13 10:47:39,984 [INFO] 127.0.0.1 - - [13/Nov/2026 10:47:39] "GET / HTTP/1.1" 200 -
+2026-11-13 10:47:40,316 [INFO] 127.0.0.1 - - [13/Nov/2026 10:47:40] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-11-13 10:48:27,366 [INFO] Received user message: What is the project architecture?
+2026-11-13 10:48:27,368 [INFO] RAG retrieved context: [Project Architecture] This project is an advanced AI Agent built using Flask, Python, Google GenAI SDK (Gemini 2.5 Flash), and deployed live on Render with persistent logging.
+[Deployment Guidelines] The app runs behind Gunicorn in production. Environment secrets like GEMINI_API_KEY are injected safely via Render Environment Variables or local .env files.
+2026-11-13 10:48:27,375 [INFO] AFC is enabled with max remote calls: 10.
+2026-11-13 10:48:29,563 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-11-13 10:48:29,576 [INFO] Successfully generated Gemini response with RAG and tools.
+2026-11-13 10:48:29,578 [INFO] 127.0.0.1 - - [13/Nov/2026 10:48:29] "POST /chat HTTP/1.1" 200 -
+2026-11-13 10:49:17,221 [INFO] Received user message: get_system_status
+2026-11-13 10:49:17,223 [INFO] RAG retrieved context: No specific internal document found in the knowledge base.
+2026-11-13 10:49:17,226 [INFO] AFC is enabled with max remote calls: 10.
+2026-11-13 10:49:18,579 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-11-13 10:49:18,583 [INFO] Tool executed: get_system_status called.
+2026-11-13 10:49:18,584 [INFO] AFC remote call 1 is done.
+2026-11-13 10:49:19,651 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-11-13 10:49:19,656 [INFO] Successfully generated Gemini response with RAG and tools.
+2026-11-13 10:49:19,660 [INFO] 127.0.0.1 - - [13/Nov/2026 10:49:19] "POST /chat HTTP/1.1" 200 -
+2026-11-13 10:49:38,257 [INFO] Received user message: tell me about python
+2026-11-13 10:49:38,258 [INFO] RAG retrieved context: [Project Architecture] This project is an advanced AI Agent built using Flask, Python, Google GenAI SDK (Gemini 2.5 Flash), and deployed live on Render with persistent logging.
+[Deployment Guidelines] The app runs behind Gunicorn in production. Environment secrets like GEMINI_API_KEY are injected safely via Render Environment Variables or local .env files.
+[Team & Developer Info] Developed as an engineering assignment showcasing modern cloud deployment, RAG pipeline integration, and automated tool-calling agent loops.
+2026-11-13 10:49:38,260 [INFO] AFC is enabled with max remote calls: 10.
+2026-11-13 10:49:40,878 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-11-13 10:49:40,884 [INFO] Successfully generated Gemini response with RAG and tools.
+2026-11-13 10:49:40,885 [INFO] 127.0.0.1 - - [13/Nov/2026 10:49:40] "POST /chat HTTP/1.1" 200 -

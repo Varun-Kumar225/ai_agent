@@ -1,8 +1,10 @@
 import os
 import logging
+import datetime
 from flask import Flask, request, jsonify, render_template_string
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 # 1. Configure logging to write to both terminal and app.log
 logging.basicConfig(
@@ -27,6 +29,50 @@ else:
 app = Flask(__name__)
 client = genai.Client(api_key=api_key)
 
+# ==========================================
+# RAG: Local Knowledge Base / Documents
+# ==========================================
+KNOWLEDGE_BASE = [
+    {
+        "title": "Project Architecture",
+        "content": "This project is an advanced AI Agent built using Flask, Python, Google GenAI SDK (Gemini 2.5 Flash), and deployed live on Render with persistent logging."
+    },
+    {
+        "title": "Deployment Guidelines",
+        "content": "The app runs behind Gunicorn in production. Environment secrets like GEMINI_API_KEY are injected safely via Render Environment Variables or local .env files."
+    },
+    {
+        "title": "Team & Developer Info",
+        "content": "Developed as an engineering assignment showcasing modern cloud deployment, RAG pipeline integration, and automated tool-calling agent loops."
+    }
+]
+
+def search_knowledge_base(query):
+    """Simple keyword-based RAG retriever to find relevant context."""
+    query_lower = query.lower()
+    relevant_docs = []
+    for doc in KNOWLEDGE_BASE:
+        if any(word in doc['title'].lower() or word in doc['content'].lower() for word in query_lower.split()):
+            relevant_docs.append(f"[{doc['title']}] {doc['content']}")
+    
+    if relevant_docs:
+        return "\n".join(relevant_docs)
+    return "No specific internal document found in the knowledge base."
+
+
+# ==========================================
+# MCP / Tool Calling: Custom Python Functions
+# ==========================================
+def get_system_status() -> str:
+    """Returns the current operational status and server time for the AI agent."""
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    logging.info("Tool executed: get_system_status called.")
+    return f"System Online. Server Time: {current_time} UTC. Status: Healthy and fully operational on Render."
+
+# Map available tools for Gemini function calling
+available_tools = [get_system_status]
+
+
 # Modern Dark-Mode UI Template
 HOME_TEMPLATE = """
 <!DOCTYPE html>
@@ -34,7 +80,7 @@ HOME_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Assistant</title>
+    <title>Gemini RAG & MCP AI Agent</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -58,7 +104,7 @@ HOME_TEMPLATE = """
         }
         .chat-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             height: 92vh;
             background-color: var(--bg-chat);
             border-radius: 16px;
@@ -89,6 +135,13 @@ HOME_TEMPLATE = """
             background-color: #22c55e;
             border-radius: 50%;
             box-shadow: 0 0 8px #22c55e;
+        }
+        .badge {
+            font-size: 0.75rem;
+            background: #3b82f6;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
         }
         .clear-btn {
             background: transparent;
@@ -185,15 +238,16 @@ HOME_TEMPLATE = """
             <div class="header-title">
                 <span class="status-dot"></span>
                 <span>Gemini AI Agent</span>
+                <span class="badge">RAG + MCP Enabled</span>
             </div>
             <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
         </div>
         <div id="chat-box">
-            <div class="message bot-msg">Hello! I am your Gemini AI Assistant. How can I help you today?</div>
+            <div class="message bot-msg">Hello! I am your advanced Gemini AI Agent equipped with RAG knowledge retrieval and tool execution (MCP). How can I assist you today?</div>
         </div>
-        <div class="typing" id="typing-indicator" style="padding: 0 24px 8px;">Gemini is thinking...</div>
+        <div class="typing" id="typing-indicator" style="padding: 0 24px 8px;">Gemini is thinking & retrieving context...</div>
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Ask me anything..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <input type="text" id="user-input" placeholder="Ask about project architecture or system status..." onkeypress="if(event.key === 'Enter') sendMessage()">
             <button id="send-btn" onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -212,7 +266,6 @@ HOME_TEMPLATE = """
             const message = inputField.value.trim();
             if (!message) return;
 
-            // Add user message
             const userDiv = document.createElement('div');
             userDiv.className = 'message user-msg';
             userDiv.textContent = message;
@@ -277,13 +330,35 @@ def chat():
 
         logging.info(f"Received user message: {user_message}")
 
+        # 1. RAG Step: Retrieve relevant context from our local knowledge base
+        retrieved_context = search_knowledge_base(user_message)
+        logging.info(f"RAG retrieved context: {retrieved_context}")
+
+        # 2. Construct an augmented prompt combining user query and retrieved facts
+        augmented_prompt = f"""
+You are an intelligent AI Agent with access to internal project documents and tools.
+
+[Retrieved Internal Knowledge (RAG)]:
+{retrieved_context}
+
+[User Question]:
+{user_message}
+
+Provide a helpful, precise, and professional response based on the retrieved knowledge and tools if needed.
+"""
+
+        # 3. Call Gemini using automatic function calling (MCP / Tools) enabled
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=user_message,
+            contents=augmented_prompt,
+            config=types.GenerateContentConfig(
+                tools=available_tools,
+                temperature=0.3
+            )
         )
         
         bot_reply = response.text
-        logging.info("Successfully generated Gemini response.")
+        logging.info("Successfully generated Gemini response with RAG and tools.")
         
         return jsonify({"reply": bot_reply})
 
